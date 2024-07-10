@@ -82,9 +82,9 @@ class FlutterAnnotationView: MKAnnotationView {
     }
     
     override var intrinsicContentSize: CGSize {
-        let width = containerView.bounds.width
+        let width = containerView.bounds.width + 32
         let titleLabelSize = titleLabel.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))
-        let height = containerView.bounds.height + titleLabelSize.height + 10
+        let height = containerView.bounds.height + titleLabelSize.height
         return CGSize(width: width, height: height)
     }
     
@@ -100,14 +100,26 @@ class FlutterAnnotationView: MKAnnotationView {
     func setupView(annotation: FlutterAnnotation) {
         let image = annotation.icon.image
         let bottomTitle = annotation.bottomTitle
-        if let width = annotation.width, let height = annotation.height {
-            containerView.frame.size = CGSize(width: width, height: height)
-        }
+        let defaultSize = CGSize(width: 100, height: 100)
+        containerView.frame.size = CGSize(
+            width: annotation.width ?? defaultSize.width,
+            height: annotation.height ?? defaultSize.height
+        )
         containerView.addSubview(bottomCornerView)
-        bottomCornerView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -15.0).isActive = true
+        
+        let size = containerView.frame.size
+        
+        bottomCornerView.topAnchor.constraint(
+            equalTo: containerView.bottomAnchor,
+            constant: -16 * (size.height / defaultSize.height)
+        ).isActive = true
         bottomCornerView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-        bottomCornerView.widthAnchor.constraint(equalToConstant: 24).isActive = true
-        bottomCornerView.heightAnchor.constraint(equalToConstant: 24).isActive = true
+        bottomCornerView.widthAnchor.constraint(
+            equalToConstant: 24 * (size.width / defaultSize.width)
+        ).isActive = true
+        bottomCornerView.heightAnchor.constraint(
+            equalToConstant: 24 * (size.height / defaultSize.height)
+        ).isActive = true
         
         let angle = (39.0 * CGFloat.pi) / 180
         let transform = CGAffineTransform(rotationAngle: angle)
@@ -125,9 +137,9 @@ class FlutterAnnotationView: MKAnnotationView {
         if let title = bottomTitle {
             addSubview(titleLabel)
             titleLabel.text = title
-            titleLabel.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8.0).isActive = true
+            titleLabel.topAnchor.constraint(equalTo: bottomCornerView.bottomAnchor, constant: 8).isActive = true
             titleLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
-            titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
+            titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, constant: 32).isActive = true
             // 高さは固定にしない
 //            titleLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         }

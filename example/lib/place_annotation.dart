@@ -115,8 +115,8 @@ class PlaceAnnotationBodyState extends State<PlaceAnnotationBody> {
       //   onTap: () => print('InfoWindow with id: $annotationId tapped.'),
       // ),
       title: title,
-      width: 80,
-      height: 80,
+      width: 100,
+      height: 100,
       onTap: () {
         print("onTap: $annotationId");
         _onAnnotationTapped(annotationId);
