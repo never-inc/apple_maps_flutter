@@ -97,7 +97,12 @@ class FlutterAnnotationView: MKAnnotationView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupView(image: UIImage? = nil, title: String? = nil) {
+    func setupView(annotation: FlutterAnnotation) {
+        let image = annotation.icon.image
+        let bottomTitle = annotation.bottomTitle
+        if let width = annotation.width, let height = annotation.height {
+            containerView.frame.size = CGSize(width: width, height: height)
+        }
         containerView.addSubview(bottomCornerView)
         bottomCornerView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -15.0).isActive = true
         bottomCornerView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
@@ -117,7 +122,7 @@ class FlutterAnnotationView: MKAnnotationView {
         imageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8.0).isActive = true
         imageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8.0).isActive = true
         
-        if let title = title {
+        if let title = bottomTitle {
             addSubview(titleLabel)
             titleLabel.text = title
             titleLabel.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8.0).isActive = true

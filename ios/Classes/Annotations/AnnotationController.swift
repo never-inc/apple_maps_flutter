@@ -28,6 +28,8 @@ extension AppleMapController: AnnotationDelegate {
                 tapGestureRecognizer.annotationView = view
                 view.addGestureRecognizer(tapGestureRecognizer)
             }
+            // 【暫定対応】タップされるたびに、ここがよばれるよう、deselectAnnotationする
+            mapView.deselectAnnotation(annotation, animated: false)
         }
     }
 
@@ -279,8 +281,7 @@ extension AppleMapController: AnnotationDelegate {
         } else {
             annotationView = FlutterAnnotationView(annotation: annotation, reuseIdentifier: id)
         }
-//        annotationView.image = annotation.icon.image
-        annotationView.setupView(image: annotation.icon.image, title: annotation.title)
+        annotationView.setupView(annotation: annotation)
         annotationView.stickyZPosition = annotation.zIndex
         return annotationView
     }

@@ -13,6 +13,7 @@ class FlutterAnnotation: NSObject, MKAnnotation {
     var id: String!
     var title: String?
     var subtitle: String?
+    var bottomTitle: String?
     var infoWindowConsumesTapEvents: Bool = false
     var image: UIImage?
     var alpha: Double?
@@ -25,18 +26,32 @@ class FlutterAnnotation: NSObject, MKAnnotation {
     var icon: AnnotationIcon = AnnotationIcon.init()
     var selectedProgrammatically: Bool = false
     
+    var width: CGFloat?
+    var height: CGFloat?
+    
     public init(fromDictionary annotationData: Dictionary<String, Any>, registrar: FlutterPluginRegistrar) {
         let position: Array<Double> = annotationData["position"] as! Array<Double>
         let infoWindow: Dictionary<String, Any> = annotationData["infoWindow"] as! Dictionary<String, Any>
         let lat: Double = position[0]
         let long: Double = position[1]
         self.coordinate = CLLocationCoordinate2D(latitude: lat, longitude: long)
+        
         self.title = infoWindow["title"] as? String
+        self.bottomTitle = annotationData["title"] as? String
         self.subtitle = infoWindow["snippet"] as? String
         self.infoWindowConsumesTapEvents = infoWindow["consumesTapEvents"] as? Bool ?? false
         self.id = annotationData["annotationId"] as? String
         self.isVisible = annotationData["visible"] as? Bool
         self.isDraggable = annotationData["draggable"] as? Bool
+        
+        if let width = annotationData["width"] as? Double {
+            self.width = CGFloat(width)
+        }
+        
+        if let height = annotationData["height"] as? Double {
+            self.height = CGFloat(height)
+        }
+        
         if let zIndex = annotationData["zIndex"] as? Double {
             self.zIndex = zIndex
         }

@@ -4,9 +4,8 @@
 
 import 'dart:async';
 import 'dart:math';
-import 'dart:typed_data';
-import 'dart:ui';
 import 'dart:ui' as ui;
+import 'dart:ui';
 
 import 'package:apple_maps_flutter/apple_maps_flutter.dart';
 import 'package:flutter/material.dart';
@@ -101,6 +100,7 @@ class PlaceAnnotationBodyState extends State<PlaceAnnotationBody> {
         break;
     }
 
+    final title = 'タイトルタイトルタイトルタイトルタイトルタイトル';
     final Annotation annotation = Annotation(
       annotationId: annotationId,
       icon: bitMapDescriptor,
@@ -109,12 +109,16 @@ class PlaceAnnotationBodyState extends State<PlaceAnnotationBody> {
         center.longitude + cos(_annotationIdCounter * pi / 6.0) / 20.0,
       ),
       zIndex: annotationCount.toDouble(),
-      infoWindow: InfoWindow(
-          title: annotationIdVal,
-          anchor: Offset(0.5, 0.0),
-          snippet: '*',
-          onTap: () => print('InfoWindow with id: $annotationId tapped.')),
+      // infoWindow: InfoWindow(
+      //   title: title,
+      //   anchor: Offset(0.5, 0.0),
+      //   onTap: () => print('InfoWindow with id: $annotationId tapped.'),
+      // ),
+      title: title,
+      width: 80,
+      height: 80,
       onTap: () {
+        print("onTap: $annotationId");
         _onAnnotationTapped(annotationId);
       },
     );
