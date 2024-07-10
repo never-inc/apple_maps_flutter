@@ -82,6 +82,7 @@ extension AppleMapController: AnnotationDelegate {
     func annotationsToAdd(annotations: NSArray) {
         for annotation in annotations {
             let annotationData: Dictionary<String, Any> = annotation as! Dictionary<String, Any>
+            // ココ
             addAnnotation(annotationData: annotationData)
         }
     }
@@ -258,10 +259,15 @@ extension AppleMapController: AnnotationDelegate {
         self.mapView.register(FlutterMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: id)
         let markerAnnotationView: FlutterMarkerAnnotationView = self.mapView.dequeueReusableAnnotationView(withIdentifier: id, for: annotation) as! FlutterMarkerAnnotationView
         markerAnnotationView.stickyZPosition = annotation.zIndex
+        
 
         if let hueColor: Double = annotation.icon.hueColor {
             markerAnnotationView.markerTintColor = UIColor.init(hue: hueColor, saturation: 1, brightness: 1, alpha: 1)
         }
+        
+//        if let image = annotation.icon.image {
+//            markerAnnotationView.image = image
+//        }
 
         return markerAnnotationView
     }
