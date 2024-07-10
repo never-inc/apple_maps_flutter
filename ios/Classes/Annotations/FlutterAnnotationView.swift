@@ -36,17 +36,15 @@ class FlutterAnnotationView: MKAnnotationView {
     private lazy var containerView: UIView = {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         view.backgroundColor = .white
-        view.layer.cornerRadius = view.frame.width / 2
         return view
     }()
     
     private lazy var imageView: UIImageView = {
-        let imageview = UIImageView()
-        imageview.translatesAutoresizingMaskIntoConstraints = false
-        imageview.layer.cornerRadius = containerView.frame.width / 2
-        imageview.contentMode = .scaleAspectFit
-        imageview.clipsToBounds = true
-        return imageview
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        return imageView
     }()
     
     private lazy var bottomCornerView: UIView = {
@@ -90,6 +88,8 @@ class FlutterAnnotationView: MKAnnotationView {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        containerView.layer.cornerRadius = containerView.bounds.width / 2
+        imageView.layer.cornerRadius = imageView.bounds.width / 2
         self.frame.size = intrinsicContentSize
     }
     
@@ -99,12 +99,14 @@ class FlutterAnnotationView: MKAnnotationView {
     
     func setupView(annotation: FlutterAnnotation) {
         let image = annotation.icon.image
+        
         let bottomTitle = annotation.bottomTitle
         let defaultSize = CGSize(width: 100, height: 100)
         containerView.frame.size = CGSize(
             width: annotation.width ?? defaultSize.width,
             height: annotation.height ?? defaultSize.height
         )
+       
         containerView.addSubview(bottomCornerView)
         
         let size = containerView.frame.size
