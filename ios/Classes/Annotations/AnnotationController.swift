@@ -68,7 +68,7 @@ extension AppleMapController: AnnotationDelegate {
             return annotationView! as! FlutterAnnotationView
         }
         if annotation.icon.iconType != .MARKER {
-            self.initInfoWindow(annotation: annotation, annotationView: annotationView!, xMargin: isCustom ? 8 : 0)
+            self.initInfoWindow(annotation: annotation, annotationView: annotationView!, isCustom: isCustom)
             if annotation.icon.iconType != .PIN {
                 let x = (0.5 - annotation.anchor.x) * Double(annotationView!.frame.size.width)
                 let y = (0.5 - annotation.anchor.y) * Double(annotationView!.frame.size.height)
@@ -150,9 +150,8 @@ extension AppleMapController: AnnotationDelegate {
         }
     }
 
-    private func initInfoWindow(annotation: FlutterAnnotation, annotationView: MKAnnotationView, xMargin: CGFloat) {
-        // ココ調整！
-        let x = self.getInfoWindowXOffset(annotationView: annotationView, annotation: annotation) + xMargin
+    private func initInfoWindow(annotation: FlutterAnnotation, annotationView: MKAnnotationView, isCustom: Bool) {
+        let x = self.getInfoWindowXOffset(annotationView: annotationView, annotation: annotation)
         let y = self.getInfoWindowYOffset(annotationView: annotationView, annotation: annotation)
         annotationView.calloutOffset = CGPoint(x: x, y: y)
         if #available(iOS 9.0, *) {
@@ -280,9 +279,9 @@ extension AppleMapController: AnnotationDelegate {
         } else {
             annotationView = FlutterAnnotationView(annotation: annotation, reuseIdentifier: id)
         }
-        annotationView.image = annotation.icon.image
+//        annotationView.image = annotation.icon.image
+        annotationView.setupView(image: annotation.icon.image, title: annotation.title)
         annotationView.stickyZPosition = annotation.zIndex
-        annotationView.setupView(text: annotation.title)
         return annotationView
     }
 

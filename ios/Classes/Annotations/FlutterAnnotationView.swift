@@ -43,7 +43,6 @@ class FlutterAnnotationView: MKAnnotationView {
     private lazy var imageView: UIImageView = {
         let imageview = UIImageView()
         imageview.translatesAutoresizingMaskIntoConstraints = false
-        imageview.image = image
         imageview.layer.cornerRadius = containerView.frame.width / 2
         imageview.contentMode = .scaleAspectFit
         imageview.clipsToBounds = true
@@ -71,17 +70,34 @@ class FlutterAnnotationView: MKAnnotationView {
         return label
     }()
     
-    // MARK: Initialization
+
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
         super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        // setupView()
+//        let frame = containerView.frame
+//        self.frame.size = CGSize(width: frame.width, height: frame.height)
+//        if let annotation = annotation as? FlutterAnnotation {
+//            setupView(image: annotation.image, title: annotation.title)
+//        }
+//        self.frame.size = intrinsicContentSize
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        let width = containerView.bounds.width
+        let titleLabelSize = titleLabel.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))
+        let height = containerView.bounds.height + titleLabelSize.height + 10
+        return CGSize(width: width, height: height)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        self.frame.size = intrinsicContentSize
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupView(text: String? = nil) {
+    func setupView(image: UIImage? = nil, title: String? = nil) {
         containerView.addSubview(bottomCornerView)
         bottomCornerView.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -15.0).isActive = true
         bottomCornerView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
@@ -95,20 +111,22 @@ class FlutterAnnotationView: MKAnnotationView {
         addSubview(containerView)
         containerView.addSubview(imageView)
         
+        imageView.image = image
         imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 8.0).isActive = true
         imageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8.0).isActive = true
         imageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8.0).isActive = true
         imageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8.0).isActive = true
         
-        if let text = text {
+        if let title = title {
             addSubview(titleLabel)
-            titleLabel.text = text
+            titleLabel.text = title
             titleLabel.topAnchor.constraint(equalTo: containerView.bottomAnchor, constant: 8.0).isActive = true
             titleLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
             titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor).isActive = true
             // 高さは固定にしない
 //            titleLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
         }
+      
     }
 }
 
