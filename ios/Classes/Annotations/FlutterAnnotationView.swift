@@ -31,6 +31,146 @@ class FlutterAnnotationView: MKAnnotationView {
             (self.layer as! ZPositionableLayer).stickyZPosition = newValue
         }
     }
+    
+    /// https://stackoverflow.com/questions/48487846/custom-mkmarkerannotationview-like-photos-app
+    private lazy var containerView: UIView = {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        view.backgroundColor = .white
+        return view
+    }()
+    
+    private lazy var imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFit
+        imageView.clipsToBounds = true
+        return imageView
+    }()
+    
+    private lazy var bottomCornerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 4.0
+        return view
+    }()
+    
+    private lazy var titleLabel: UILabel = {
+        let label = OutlineLabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.backgroundColor = .clear
+        label.textColor = .black
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 16)
+        label.numberOfLines = 0
+        label.outlineWidth = 3.0
+        label.outlineColor = .white
+        return label
+    }()
+    
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+//        let frame = containerView.frame
+//        self.frame.size = CGSize(width: frame.width, height: frame.height)
+//        if let annotation = annotation as? FlutterAnnotation {
+//            setupView(image: annotation.image, title: annotation.title)
+//        }
+//        self.frame.size = intrinsicContentSize
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        let width = containerView.bounds.width + 32
+        let titleLabelSize = titleLabel.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))
+        let height = containerView.bounds.height + titleLabelSize.height
+        return CGSize(width: width, height: height)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        containerView.layer.cornerRadius = containerView.bounds.width / 2
+        imageView.layer.cornerRadius = imageView.bounds.width / 2
+        self.frame.size = intrinsicContentSize
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setupView(annotation: FlutterAnnotation) {
+        let image = annotation.icon.image
+        
+        let bottomTitle = annotation.bottomTitle
+        let defaultSize = CGSize(width: 100, height: 100)
+        containerView.frame.size = CGSize(
+            width: annotation.width ?? defaultSize.width,
+            height: annotation.height ?? defaultSize.height
+        )
+       
+        containerView.addSubview(bottomCornerView)
+        
+        let size = containerView.frame.size
+        
+        bottomCornerView.topAnchor.constraint(
+            equalTo: containerView.bottomAnchor,
+            constant: -16 * (size.height / defaultSize.height)
+        ).isActive = true
+        bottomCornerView.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+        bottomCornerView.widthAnchor.constraint(
+            equalToConstant: 24 * (size.width / defaultSize.width)
+        ).isActive = true
+        bottomCornerView.heightAnchor.constraint(
+            equalToConstant: 24 * (size.height / defaultSize.height)
+        ).isActive = true
+        
+        let angle = (39.0 * CGFloat.pi) / 180
+        let transform = CGAffineTransform(rotationAngle: angle)
+        bottomCornerView.transform = transform
+        
+        addSubview(containerView)
+        containerView.addSubview(imageView)
+        
+        imageView.image = image
+        imageView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 8.0).isActive = true
+        imageView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8.0).isActive = true
+        imageView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8.0).isActive = true
+        imageView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -8.0).isActive = true
+        
+        if let title = bottomTitle {
+            addSubview(titleLabel)
+            titleLabel.text = title
+            titleLabel.topAnchor.constraint(equalTo: bottomCornerView.bottomAnchor, constant: 8).isActive = true
+            titleLabel.centerXAnchor.constraint(equalTo: containerView.centerXAnchor).isActive = true
+            titleLabel.widthAnchor.constraint(equalTo: containerView.widthAnchor, constant: 32).isActive = true
+            // 高さは固定にしない
+//            titleLabel.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        }
+      
+    }
+}
+
+class OutlineLabel: UILabel {
+    var outlineWidth: CGFloat = 2.0
+    var outlineColor: UIColor = .white
+
+    override func drawText(in rect: CGRect) {
+        let shadowOffset = self.shadowOffset
+        let textColor = self.textColor
+
+        let context = UIGraphicsGetCurrentContext()
+        context?.setLineWidth(outlineWidth)
+        context?.setLineJoin(.round)
+        context?.setTextDrawingMode(.stroke)
+
+        self.textColor = outlineColor
+        super.drawText(in: rect)
+
+        context?.setTextDrawingMode(.fill)
+        self.textColor = textColor
+        super.drawText(in: rect)
+
+        self.shadowOffset = shadowOffset
+    }
 }
 
 @available(iOS 11.0, *)

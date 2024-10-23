@@ -28,6 +28,8 @@ extension AppleMapController: AnnotationDelegate {
                 tapGestureRecognizer.annotationView = view
                 view.addGestureRecognizer(tapGestureRecognizer)
             }
+            // 【暫定対応】タップされるたびに、ここがよばれるよう、deselectAnnotationする
+            mapView.deselectAnnotation(annotation, animated: false)
         }
     }
 
@@ -44,6 +46,7 @@ extension AppleMapController: AnnotationDelegate {
         let identifier: String = annotation.id
         var annotationView = self.mapView.dequeueReusableAnnotationView(withIdentifier: identifier)
         let oldflutterAnnoation = annotationView?.annotation as? FlutterAnnotation
+      
         if annotationView == nil || oldflutterAnnoation?.icon.iconType != annotation.icon.iconType {
             if #available(iOS 11.0, *), annotation.icon.iconType == IconType.MARKER {
                 annotationView = getMarkerAnnotationView(annotation: annotation, id: identifier)
@@ -56,6 +59,8 @@ extension AppleMapController: AnnotationDelegate {
         guard annotationView != nil else {
             return FlutterAnnotationView()
         }
+        let isCustom = annotation.icon.iconType == .CUSTOM_FROM_ASSET || annotation.icon.iconType == .CUSTOM_FROM_BYTES
+        
         annotationView!.annotation = annotation
         // If annotation is not visible set alpha to 0 and don't let the user interact with it
         if !annotation.isVisible! {
@@ -65,7 +70,7 @@ extension AppleMapController: AnnotationDelegate {
             return annotationView! as! FlutterAnnotationView
         }
         if annotation.icon.iconType != .MARKER {
-            self.initInfoWindow(annotation: annotation, annotationView: annotationView!)
+            self.initInfoWindow(annotation: annotation, annotationView: annotationView!, isCustom: isCustom)
             if annotation.icon.iconType != .PIN {
                 let x = (0.5 - annotation.anchor.x) * Double(annotationView!.frame.size.width)
                 let y = (0.5 - annotation.anchor.y) * Double(annotationView!.frame.size.height)
@@ -82,6 +87,7 @@ extension AppleMapController: AnnotationDelegate {
     func annotationsToAdd(annotations: NSArray) {
         for annotation in annotations {
             let annotationData: Dictionary<String, Any> = annotation as! Dictionary<String, Any>
+            // ココ
             addAnnotation(annotationData: annotationData)
         }
     }
@@ -146,7 +152,7 @@ extension AppleMapController: AnnotationDelegate {
         }
     }
 
-    private func initInfoWindow(annotation: FlutterAnnotation, annotationView: MKAnnotationView) {
+    private func initInfoWindow(annotation: FlutterAnnotation, annotationView: MKAnnotationView, isCustom: Bool) {
         let x = self.getInfoWindowXOffset(annotationView: annotationView, annotation: annotation)
         let y = self.getInfoWindowYOffset(annotationView: annotationView, annotation: annotation)
         annotationView.calloutOffset = CGPoint(x: x, y: y)
@@ -258,6 +264,7 @@ extension AppleMapController: AnnotationDelegate {
         self.mapView.register(FlutterMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: id)
         let markerAnnotationView: FlutterMarkerAnnotationView = self.mapView.dequeueReusableAnnotationView(withIdentifier: id, for: annotation) as! FlutterMarkerAnnotationView
         markerAnnotationView.stickyZPosition = annotation.zIndex
+        
 
         if let hueColor: Double = annotation.icon.hueColor {
             markerAnnotationView.markerTintColor = UIColor.init(hue: hueColor, saturation: 1, brightness: 1, alpha: 1)
@@ -274,7 +281,7 @@ extension AppleMapController: AnnotationDelegate {
         } else {
             annotationView = FlutterAnnotationView(annotation: annotation, reuseIdentifier: id)
         }
-        annotationView.image = annotation.icon.image
+        annotationView.setupView(annotation: annotation)
         annotationView.stickyZPosition = annotation.zIndex
         return annotationView
     }
